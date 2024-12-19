@@ -60,9 +60,40 @@ namespace technical_assessment.Controllers
                     ViewBag.ErrorMessage = "Error fetching data: " + ex.Message;
                 }
             }
-            return JsonConvert.SerializeObject(recyclabletItems);
+            Dictionary<string, object> content = new Dictionary<string, object>();
+            content["table_data"] = recyclabletItems;
+            content["total_rows"] = getTotalRows(search);
+            return JsonConvert.SerializeObject(content);
         }
 
+        public int getTotalRows(string search)
+        {
+            int total_rows = 0;
+            string search_string = search + "%";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT count(*) as total_rows from recyclable_items as ri " +
+                     "JOIN recyclables as r ON r.id = ri.recyclable_type_id " +
+                    " WHERE ri.item_description LIKE @search_string ";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@search_string", search_string);
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        total_rows = reader.GetInt32(reader.GetOrdinal("total_rows"));
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.ErrorMessage = "Error fetching data: " + ex.Message;
+                }
+            }
+            return total_rows;
+        }
         public string Create(RecyclableItems recyclableItems)
         {
             return recyclableItems.Insert();

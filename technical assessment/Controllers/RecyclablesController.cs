@@ -76,6 +76,7 @@ namespace technical_assessment.Controllers
             {
                 search = "";
             }
+            
             List<Recyclables> recyclables = new List<Recyclables>();
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
@@ -109,7 +110,38 @@ namespace technical_assessment.Controllers
                     ViewBag.ErrorMessage = "Error fetching data: " + ex.Message;
                 }
             }
-            return JsonConvert.SerializeObject(recyclables);
+            Dictionary<string, object> content = new Dictionary<string, object>();
+            content["table_data"] = recyclables;
+            content["total_rows"] = getTotalRows(search);
+            return JsonConvert.SerializeObject(content);
+        }
+
+        public int getTotalRows(string search)
+        {
+            int total_rows = 0;
+            string search_string = search + "%";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT count(*) as total_rows from recyclables " +
+                    " WHERE type_name LIKE @search_string ;";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@search_string", search_string);
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        total_rows = reader.GetInt32(reader.GetOrdinal("total_rows"));
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.ErrorMessage = "Error fetching data: " + ex.Message;
+                }
+            }
+            return total_rows;
         }
         public string GetRecyclableData(string search, int page = 1, int per_page = 10)
         {
