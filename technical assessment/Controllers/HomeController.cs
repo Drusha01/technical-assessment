@@ -10,7 +10,7 @@ namespace technical_assessment.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            return Redirect("/Recyclables");
         }
 
         public ActionResult About()

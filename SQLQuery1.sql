@@ -59,7 +59,7 @@ CREATE TABLE recyclable_items (
     item_description VARCHAR(150),          
 	date_created DATETIME DEFAULT CURRENT_TIMESTAMP, 
     date_updated DATETIME DEFAULT CURRENT_TIMESTAMP
-    FOREIGN KEY (recyclable_type_id) REFERENCES recyclables(id) 
+    FOREIGN KEY (recyclable_type_id) REFERENCES recyclables(id) ON DELETE CASCADE
 );
 
 GO

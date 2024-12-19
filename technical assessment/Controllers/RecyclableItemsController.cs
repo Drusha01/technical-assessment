@@ -30,7 +30,7 @@ namespace technical_assessment.Controllers
             {
                 string query = "SELECT ri.id,ri.recyclable_type_id,r.type_name,ri.weight,ri.computed_rate,ri.item_description,ri.date_created,ri.date_updated from recyclable_items as ri " +
                      "JOIN recyclables as r ON r.id = ri.recyclable_type_id " +
-                    " WHERE type_name LIKE @search_string " +
+                    " WHERE ri.item_description LIKE @search_string " +
                     "ORDER BY date_created DESC OFFSET @off_set ROWS FETCH NEXT @per_page ROWS ONLY;";
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@search_string", search_string);
@@ -47,8 +47,8 @@ namespace technical_assessment.Controllers
                             id = reader.GetInt32(reader.GetOrdinal("id")),
                             recyclable_type_id = reader.GetInt32(reader.GetOrdinal("recyclable_type_id")),
                             type_name = reader.GetString(reader.GetOrdinal("type_name")),
-                            weight = Convert.ToDouble(reader.GetOrdinal("weight")),
-                            computed_rate = Convert.ToDouble(reader.GetOrdinal("computed_rate")),
+                            weight = Convert.ToDouble(reader.GetDecimal(reader.GetOrdinal("weight"))),
+                            computed_rate = Convert.ToDouble(reader.GetDecimal(reader.GetOrdinal("computed_rate"))),
                             item_description = reader.GetString(reader.GetOrdinal("item_description")),
                         };
                         recyclabletItems.Add(item);
@@ -74,6 +74,42 @@ namespace technical_assessment.Controllers
         public string Delete(RecyclableItems recyclableItems)
         {
             return recyclableItems.Delete();
+        }
+
+        public string GetDetails(string id)
+        {
+            List<RecyclableItems> recyclableitem = new List<RecyclableItems>();
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                string query = "SELECT ri.id,ri.recyclable_type_id,r.rate,r.type_name,r.min_kg,r.max_kg,ri.weight,ri.computed_rate,ri.item_description,ri.date_created,ri.date_updated from recyclable_items as ri " +
+                     "JOIN recyclables as r ON r.id = ri.recyclable_type_id WHERE ri.id = @id ";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@id", id);
+                try
+                {
+                    connection.Open();
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        var item = new RecyclableItems
+                        {
+                            id = reader.GetInt32(reader.GetOrdinal("id")),
+                            recyclable_type_id = reader.GetInt32(reader.GetOrdinal("recyclable_type_id")),
+                            type_name = reader.GetString(reader.GetOrdinal("type_name")),
+                            weight = Convert.ToDouble(reader.GetDecimal( reader.GetOrdinal("weight"))),
+                            computed_rate = Convert.ToDouble(reader.GetDecimal(reader.GetOrdinal("computed_rate"))),
+                            item_description = reader.GetString(reader.GetOrdinal("item_description")),
+                        };
+                        recyclableitem.Add(item);
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    ViewBag.ErrorMessage = "Error fetching data: " + ex.Message;
+                }
+            }
+            return JsonConvert.SerializeObject(recyclableitem);
         }
     }
 }

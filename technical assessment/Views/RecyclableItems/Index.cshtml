@@ -11,11 +11,11 @@
     <thead class="thead-dark">
         <tr>
             <th>#</th>
+            <th>Item Description</th>
             <th>Type</th>
             <th>Rate</th>
             <th>Weight</th>
             <th>Computed Rate</th>
-            <th>Item Description</th>
             <th class="text-center">Action</th>
         </tr>
     </thead>
@@ -58,19 +58,81 @@
                             <input type="text" class="form-control" name="computed_rate" disabled id="computed_rate" required placeholder="Auto computed">
                         </div>
                         <div class="mb-3">
-                            <label for="min_kg" class="form-label">Weight <span class="text-danger">*</span></label>
+                            <label for="weight" class="form-label">Weight <span class="text-danger">*</span></label>
                             <input type="number" step="0.01" class="form-control" name="weight" onkeyup="calculateRate()" id="weight" required placeholder="Enter weight">
                         </div>
                     </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Add</button>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Add</button>
                     </div>
+                </div>
             </div>
         </form>
     </div>
-
+    <div class="modal fade" id="editRecyclableItem" tabindex="-1" aria-labelledby="addRecyclablesLabel" aria-hidden="true">
+        <form action="/" id="updateRecyclableItemForm" method="post">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addRecyclablesLabel">Edit Recyclable Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="edit_modal_btn_close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="number" name="e_id" id="e_id" value="" class="d-none" />
+                        <div class="mb-3">
+                            <label for="e_type_name" class="form-label">Search Recyclable type </label>
+                            <input type="text" class="form-control" name="e_type_name" id="e_type_name" onkeyup="getEditRecyclablesData()" placeholder="Search type name ...">
+                        </div>
+                        <div class="mb-3">
+                            <label for="e_recyclable_type_id" class="form-label">Recyclable type <span class="text-danger">*</span></label>
+                            <select class="form-control" name="e_recyclable_type_id" onchange="calculateRate()" id="e_recyclable_type_id">
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="e_item_description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea type="text" rows="3" class="form-control" name="e_item_description" id="e_item_description" required placeholder="Enter description "></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="e_computed_rate" class="form-label">Computed Rate</label>
+                            <input type="text" class="form-control" name="e_computed_rate" disabled id="e_computed_rate" required placeholder="Auto computed">
+                        </div>
+                        <div class="mb-3">
+                            <label for="e_weight" class="form-label">Weight <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" class="form-control" name="e_weight" onkeyup="calculateRate()" id="e_weight" required placeholder="Enter weight">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal fade" id="deleteRecyclableItem" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form action="/" id="deleteRecyclableItemForm" method="post">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addRecyclablesLabel">Delete Recyclables</h5>
+                            <button type="button" class="btn-close" id="delete_modal_btn_close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                            </div>
+                            <div class="text-center text-danger"> Are you sure you want to delete this?</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -98,17 +160,30 @@
     }
 
     const calculateRate = () => {
+        document.getElementById('computed_rate').value = 0;
+        document.getElementById('e_computed_rate').value = 0;
         var weight = document.getElementById('weight').value;
-        console.log(weight)
+        var weight2 = document.getElementById('e_weight').value;
         if (weight < 0 ) {
             return;
         }
         var type_id = document.getElementById('recyclable_type_id').value
-        console.log(type_id);
-        var recyclable = recyclables.find((item,type_id) => item.id === type_id);
-        console.log(recyclable.rate)
+        var type_id_2 = document.getElementById('e_recyclable_type_id').value
+        var recyclable = [];
+        var recyclable2 = [];
+        recyclables.map((item) => {
+            if (item.id == type_id) {
+                recyclable = item;
+            }
+            if (item.id == type_id_2) {
+                recyclable2 = item;
+            }
+        });
         if (recyclable) {
-            document.getElementById('recyclable_type_id').value = weight * recyclable.rate
+            document.getElementById('computed_rate').value = weight * recyclable.rate
+        }
+        if (recyclable2) {
+            document.getElementById('e_computed_rate').value = weight2 * recyclable2.rate
         }
     }
     const getData = (page = 1, per_page = 10) => {
@@ -127,14 +202,14 @@
                 const row = document.createElement("tr");
                 row.innerHTML = `
                 <td>${((curr_page - 1) * per_page) + index + 1}</td>
+                <td>${item.item_description}</td>
                 <td>${item.type_name}</td>
-                <td>${item.computed_rate / item.weight}</td>
+                <td>${item.computed_rate}</td>
                 <td>${item.weight}</td>
                 <td>${item.computed_rate}</td>
-                <td>${item.item_description}</td>
                 <td class="text-center">
-                    <button class="btn btn-success" onclick="getRecyclables(${item.id},'EditRecyclableItem')">Edit</button>
-                    <button class="btn btn-danger" onclick="getRecyclables(${item.id},'DeleteRecyclableItem')">Delete</button>
+                    <button class="btn btn-success" onclick="getRecyclableDetails(${item.id},'editRecyclableItem')">Edit</button>
+                    <button class="btn btn-danger" onclick="getRecyclableDetails(${item.id},'deleteRecyclableItem')">Delete</button>
                 </td>
             `;
                 tableBody.appendChild(row);
@@ -147,34 +222,46 @@
     }
 
     const getRecyclablesData = (page = 1, per_page = 10) => {
-        curr_page = page;
-        this.per_page = per_page
+        clear();
         const formData = {
             search: document.getElementById('type_name').value,
             page: page,
             per_page: per_page,
         }
-        recyclables.splice(0, recyclables.length);
         axios.post('/Recyclables/GetRecyclableData', formData)
         .then(function (response) {
+            recyclables.splice(0, recyclables.length);
             document.getElementById("recyclable_type_id").innerHTML = ""
+            document.getElementById("e_recyclable_type_id").innerHTML = ""
             if (response.data.length) {
                 const row = document.createElement("option");
+                const row2 = document.createElement("option");
                 row.value = null
                 row.innerHTML = "Select Recyclables"
-                document.getElementById("recyclable_type_id").appendChild(row)
+                row2.value = null
+                row2.innerHTML = "Select Recyclables"
+                document.getElementById("e_recyclable_type_id").appendChild(row)
+                document.getElementById("recyclable_type_id").appendChild(row2)
                 response.data.map((item, index) => {
                     recyclables.push(item);
                     const row = document.createElement("option");
+                    const row2 = document.createElement("option");
                     row.value = item.id
-                    row.innerHTML = item.type_name + " ( " + item.rate + " ) "
-                    document.getElementById("recyclable_type_id").appendChild(row)
+                    row.innerHTML = item.type_name + " ( " + item.rate + " ) ";
+                    row2.value = item.id
+                    row2.innerHTML = item.type_name + " ( " + item.rate + " ) ";
+                    document.getElementById("e_recyclable_type_id").appendChild(row)
+                    document.getElementById("recyclable_type_id").appendChild(row2)
                 });
             } else {
                 const row = document.createElement("option");
-                row.value = null
+                const row2 = document.createElement("option");
+                row.value = ""
                 row.innerHTML = "NO DATA"
+                row2.value = ""
+                row2.innerHTML = "NO DATA"
                 document.getElementById("recyclable_type_id").appendChild(row)
+                document.getElementById("e_recyclable_type_id").appendChild(row2)
             }
         })
         .catch(function (error) {
@@ -182,7 +269,12 @@
             alert('Error creating the item.');
         });
     }
-
+    const clear = () => {
+        document.getElementById('recyclable_type_id').value = "";
+        document.getElementById('item_description').value = null;
+        document.getElementById('weight').value = null;
+        document.getElementById('computed_rate').value = null;
+    }
     document.getElementById('createRecyclableItemForm').addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = {
@@ -192,17 +284,121 @@
         };
         Swal.showLoading();
         axios.post('/RecyclableItems/Create', formData)
+        .then(function (response) {
+            Swal.close();
+            if (response.data == "1") {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Successfully inserted!",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                clear();
+                getData(curr_page, per_page);
+            } else {
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    title: response.data,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        })
+        .catch(function (error) {
+            console.error('There was an error!', error);
+            alert('Error creating the item.');
+        });
+    });
+
+    const getRecyclableDetails = (id, modal_id) => {
+        getRecyclablesData(1,10);
+        const formData = {
+            id: id,
+        }
+        axios.post('/RecyclableItems/GetDetails', formData)
+        .then(function (response) {
+            response.data.map((item, index) => {
+                document.getElementById('e_type_name').value = null;
+                document.getElementById('e_recyclable_type_id').value = item.recyclable_type_id;
+                document.getElementById('e_item_description').value = item.item_description;
+                document.getElementById('e_weight').value = item.weight;
+                document.getElementById('e_computed_rate').value = item.computed_rate;
+                document.getElementById('e_id').value = item.id;
+                const modalElement = document.getElementById(modal_id);
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+
+                const row = document.createElement("option");
+                row.value = null
+                row.innerHTML = item.type_name + " (" + item.computed_rate/item.weight+")"
+                document.getElementById("e_recyclable_type_id").appendChild(row)
+            });
+        })
+        .catch(function (error) {
+            console.error('There was an error!', error);
+            alert('Error creating the item.');
+        });
+    }
+
+    document.getElementById('updateRecyclableItemForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = {
+            recyclable_type_id: document.getElementById('e_recyclable_type_id').value,
+            item_description: document.getElementById('e_item_description').value,
+            weight: document.getElementById('e_weight').value,
+            id: document.getElementById('e_id').value
+        };
+        Swal.showLoading();
+        axios.post('/RecyclableItems/Update', formData)
+        .then(function (response) {
+            Swal.close();
+            if (response.data == "1") {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Successfully updated!",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                clear();
+                document.getElementById('edit_modal_btn_close').click()
+                getData(curr_page, per_page);
+            } else {
+                Swal.fire({
+                    position: "center",
+                    icon: "warning",
+                    title: response.data,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+        })
+        .catch(function (error) {
+            console.error('There was an error!', error);
+            alert('Error creating the item.');
+        });
+    });
+    document.getElementById('deleteRecyclableItemForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = {
+            id: document.getElementById('e_id').value
+        };
+        Swal.showLoading();
+        axios.post('/RecyclableItems/Delete', formData)
             .then(function (response) {
                 Swal.close();
                 if (response.data == "1") {
                     Swal.fire({
                         position: "center",
                         icon: "success",
-                        title: "Successfully inserted!",
+                        title: "Successfully deleted!",
                         showConfirmButton: false,
                         timer: 1500
                     });
-                    clear();
+                    document.getElementById('delete_modal_btn_close').click()
+                    getData(curr_page, per_page);
                 } else {
                     Swal.fire({
                         position: "center",

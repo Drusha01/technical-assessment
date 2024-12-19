@@ -186,6 +186,32 @@ namespace technical_assessment.Models
         }
         public string Delete()
         {
+            string query = "DELETE FROM recyclables WHERE id = @id;";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@id", this.id);
+                    try
+                    {
+                        connection.Open();
+                        int rowsAffected = command.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            return "1";
+                        }
+                        else
+                        {
+                            Console.WriteLine("No rows were inserted.");
+                            return "0";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Error inserting data: " + ex.Message);
+                    }
+                }
+            }
             return "0";
         }
     }
